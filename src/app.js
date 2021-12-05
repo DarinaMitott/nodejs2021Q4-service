@@ -3,6 +3,7 @@ const swaggerUI = require('swagger-ui-express');
 const path = require('path');
 const YAML = require('yamljs');
 const userRouter = require('./resources/users/user.router');
+const boardsRouter = require('./resources/boards/board.router');
 
 const app = express();
 const swaggerDocument = YAML.load(path.join(__dirname, '../doc/api.yaml'));
@@ -20,5 +21,11 @@ app.use('/', (req, res, next) => {
 });
 
 app.use('/users', userRouter);
+app.use('/boards', boardsRouter);
+
+
+app.get('*', (req, res) => {
+  res.status(404).json({error: 'Not found'});
+});
 
 module.exports = app;
