@@ -21,4 +21,8 @@ app.use('/', (req, res, next) => {
 
 app.use('/users', userRouter);
 
+app.get('*', (req, res) => {
+  res.status(404).json({error: 'Not found'});
+});
+
 module.exports = app;
