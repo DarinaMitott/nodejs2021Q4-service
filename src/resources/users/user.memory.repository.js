@@ -1,4 +1,5 @@
 const User = require('./user.model');
+const { UserNotFoundError } = require('../../common/errors');
 
 const users = [
   new User({
@@ -22,8 +23,25 @@ const create = async (name, login, password) => {
   return newUser
 }
 
-const loginUser = async (login, password) => {
-  return users.find((u) => u.login === login && u.password === password);
+const loginUser = async (login, password) => users.find((u) => u.login === login && u.password === password)
+
+const updateUser = async (userId, toUpdate) => {
+  const user = users.find(u => u.id === userId);
+  if (!user) {
+    throw new UserNotFoundError();
+  }
+
+  Object.assign(user, toUpdate);
+  return user;
+}
+
+const deleteUser = async (userId) => {
+  // TODO set tasks userId = null
+  const userIdx = users.findIndex(u => u.id === userId);
+  if (userIdx < 0) {
+    throw new UserNotFoundError();
+  }
+  users.splice(userIdx, 1);
 }
 
 module.exports = {
@@ -31,4 +49,6 @@ module.exports = {
   getById,
   create,
   loginUser,
+  updateUser,
+  deleteUser,
 };
