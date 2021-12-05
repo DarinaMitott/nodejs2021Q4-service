@@ -6,8 +6,10 @@ const getById = (userId) => usersRepo.getById(userId);
 const create = (name, login, password) => usersRepo.create(name, login, password);
 const loginUser = (login, password) => usersRepo.loginUser(login, password);
 const updateUser = (userId, toUpdate) => usersRepo.updateUser(userId, toUpdate);
-const deleteUser = async (userId) => taskService.unassignUser(userId)
-        .then(usersRepo.deleteUser(userId));
+const deleteUser = async (userId) => {
+    await taskService.unassignUser(userId);
+    return usersRepo.deleteUser(userId);
+}
 
 module.exports = {
     getAll,

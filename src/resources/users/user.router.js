@@ -40,7 +40,8 @@ router.route('/:userId').put(async (req, res) => {
     }
 
     const toUpdate = {};
-    for (const [name, validator] of Object.entries(userValidator.user)) {
+    for (let i = 0; i < Object.entries(userValidator.user).length; i += 1){
+      const [name, validator] = Object.entries(userValidator.user)[i];
       if (req.body[name] !== undefined && !validator(req.body[name])) {
         res.status(400).json({error: `Invalid field "${name}" specified`});
         return;
