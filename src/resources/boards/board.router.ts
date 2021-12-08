@@ -1,11 +1,13 @@
-const router = require('express').Router();
-const uuid = require('uuid');
-const boardService = require('./board.service');
-const columnValidator = require('./column.validator');
-const tasksRouter = require('../tasks/task.router');
+import { Router, Request, Response } from 'express';
+import uuid from 'uuid';
+import * as boardService from './board.service';
+import * as columnValidator from './column.validator';
+import { router as tasksRouter} from '../tasks/task.router';
 
 
-router.route('/(:boardId)?').get(async (req, res) => {
+const router: Router = Router()
+
+router.route('/(:boardId)?').get(async (req: Request, res: Response) => {
   try {
     const { boardId } = req.params;
     if (boardId) {
@@ -28,7 +30,7 @@ router.route('/(:boardId)?').get(async (req, res) => {
   }
 });
 
-router.route('/').post(async (req, res) => {
+router.route('/').post(async (req: Request, res: Response) => {
   try {
     const { title, columns } = req.body;
     if (typeof title !== 'string' || !title.trim()) {
@@ -49,7 +51,7 @@ router.route('/').post(async (req, res) => {
   }
 });
 
-router.route('/:boardId').put(async (req, res) => {
+router.route('/:boardId').put(async (req: Request, res: Response) => {
   try {
     const { boardId } = req.params;
     if (!uuid.validate(boardId)) {
@@ -80,7 +82,7 @@ router.route('/:boardId').put(async (req, res) => {
   }
 });
 
-router.route('/:boardId').delete(async (req, res) => {
+router.route('/:boardId').delete(async (req: Request, res: Response) => {
   try {
     const { boardId } = req.params;
     if (!uuid.validate(boardId)) {

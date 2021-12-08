@@ -1,18 +1,30 @@
-const uuid = require('uuid');
+import { validate } from 'uuid';
 
 const columnValidators = {
-  title: x => typeof x === 'string' && x.trim(),
-  order: x => typeof x === 'number',
+  title: (x?: string | number) => typeof x === 'string' && x.trim(),
+  order: (x?: string | number) => typeof x === 'number',
 }
 
-const validateColumns = async (columns) => {
+interface IColumnKey {
+  [key: string]: string | number | undefined
+}
+
+interface ColumnArg extends IColumnKey {
+  id?: string,
+  title?: string,
+  order?: number
+}
+
+export const id = validate;
+
+export const validateColumns = async (columns: ColumnArg[]): Promise<ColumnArg[] | null> => {
   if (!Array.isArray(columns)) {
     return null;
   }
   const validated = [];
   for (let i = 0; i < columns.length; i += 1) {
-    const column = columns[i];
-    const colOk = {};
+    const column: ColumnArg = columns[i];
+    const colOk: ColumnArg = {};
     for (let e = 0; e < Object.entries(columnValidators).length; e += 1) {
       const [name, validator] = Object.entries(columnValidators)[e];
       if (column[name] !== undefined) {
@@ -23,7 +35,7 @@ const validateColumns = async (columns) => {
       }
     }
     if (column.id !== undefined) {
-      if (!uuid.validate(column.id)) {
+      if (!id(column.id)) {
         return null;
       }
       colOk.id = column.id;
@@ -34,7 +46,3 @@ const validateColumns = async (columns) => {
 };
 
 
-module.exports = {
-  validateColumns,
-  id: uuid.validate,
-}

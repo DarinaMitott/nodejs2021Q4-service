@@ -1,6 +1,21 @@
-const uuid = require('uuid');
+import uuid from 'uuid';
 
-class User {
+type UserType = {
+  id: string;
+  name: string;
+  login: string;
+  password: string
+}
+
+export class User implements UserType {
+  id: string;
+
+  name: string;
+
+  login: string;
+
+  password: string;
+
   constructor({
     id = uuid.v4(),
     name = 'USER',
@@ -22,4 +37,3 @@ class User {
   }
 }
 
-module.exports = User;

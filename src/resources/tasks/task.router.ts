@@ -1,10 +1,12 @@
-const router = require('express').Router();
-const uuid = require('uuid');
+import { Router, Request, Response } from 'express';
+import uuid from 'uuid';
 const taskService = require('./task.service');
 const { TaskNotFoundError } = require('../../common/errors');
 const taskValidator = require("./task.validator");
 
-router.route('/(:taskId)?').get(async (req, res) => {
+export const router: Router = Router();
+
+router.route('/(:taskId)?').get(async (req: Request, res: Response) => {
   try {
     if (!uuid.validate(req.boardId)) {
       res.status(400).json({error: 'board id is invalid'});
@@ -36,7 +38,7 @@ router.route('/(:taskId)?').get(async (req, res) => {
   }
 });
 
-router.route('/').post(async (req, res) => {
+router.route('/').post(async (req: Request, res: Response) => {
   try {
     if (!uuid.validate(req.boardId)) {
       res.status(400).json({error: 'board id is invalid'});
@@ -60,7 +62,7 @@ router.route('/').post(async (req, res) => {
   }
 });
 
-router.route('/:taskId').put(async (req, res) => {
+router.route('/:taskId').put(async (req: Request, res: Response) => {
   try {
     if (!uuid.validate(req.boardId)) {
       res.status(400).json({error: 'board id is invalid'});
@@ -95,7 +97,7 @@ router.route('/:taskId').put(async (req, res) => {
   }
 });
 
-router.route('/:taskId').delete(async (req, res) => {
+router.route('/:taskId').delete(async (req: Request, res: Response) => {
   try {
     if (!uuid.validate(req.boardId)) {
       res.status(400).json({error: 'board id is invalid'});
@@ -120,4 +122,3 @@ router.route('/:taskId').delete(async (req, res) => {
   }
 });
 
-module.exports = router;
