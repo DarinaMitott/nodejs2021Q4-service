@@ -18,7 +18,11 @@
     "noInlineConfig": true,
     "import/resolver": {
       "typescript": {},
-      "extensions": [".js", ".ts"]
+      "extensions": [".js", ".ts"],
+      "node": {
+        "extensions": [".js", ".jsx", ".ts", ".tsx"],
+        "moduleDirectory": ["node_modules", "src/"]
+      }
     },
     "node": {
       "tryExtensions": [".js", ".json", ".node", ".ts", ".d.ts", ".tsx"],
@@ -30,6 +34,9 @@
     "plugin:node/recommended",
     "plugin:@typescript-eslint/eslint-recommended",
     "plugin:@typescript-eslint/recommended",
+    "plugin:import/errors",
+    "plugin:import/warnings",
+    "plugin:import/typescript",
     "airbnb-base",
     "prettier"
   ],
