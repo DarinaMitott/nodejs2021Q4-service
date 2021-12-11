@@ -1,4 +1,4 @@
-import { v4 as uuid_v4 } from 'uuid';
+import { v4 as uuidV4 } from 'uuid';
 
 type UserType = {
   id: string;
@@ -17,7 +17,7 @@ export class User implements UserType {
   password: string;
 
   constructor({
-    id = uuid_v4(),
+    id = uuidV4(),
     name = 'USER',
     login = 'user',
     password = 'P@55w0rd'

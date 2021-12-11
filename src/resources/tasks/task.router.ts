@@ -51,7 +51,7 @@ router.route('/').post(async (req: Request, res: Response) => {
     .then((validatedTask: TaskCreateOrUpdateArg | null) => {
       if (!validatedTask) {
         res.status(400).json({error: 'task validation failed'});
-        return;
+        return undefined;
       }
       return validatedTask;
     })
@@ -76,7 +76,7 @@ router.route('/:taskId').put(async (req: Request, res: Response) => {
     .then((validatedTask) => {
       if (!validatedTask) {
         res.status(400).json({error: 'task validation failed'});
-        return;
+        return undefined;
       }
       return taskService.updateTask((req as RequestWithBoardId).boardId, taskId, validatedTask);
     })

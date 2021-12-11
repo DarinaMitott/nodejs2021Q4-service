@@ -1,7 +1,7 @@
 import { validate } from 'uuid';
 import { ColumnArgType } from "./column.model";
 
-type Validator = (x?: string|number|undefined) => boolean;
+type Validator = (_x?: string|number|undefined) => boolean;
 
 const columnValidators = {
   title: (x?: string | number): boolean => typeof x === 'string' && x.trim().length > 0,
@@ -33,7 +33,7 @@ export const validateColumns = async (columns: ColumnArgType[]): Promise<ColumnA
       const value = (column as IColumnKey)[name];
       if (value !== undefined) {
         if (!validator(value)) {
-          return null;
+          return;
         }
         (colOk as IColumnKey)[name] = value;
       }

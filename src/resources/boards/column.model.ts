@@ -1,12 +1,6 @@
-import { v4 as uuid_v4 } from 'uuid';
+import { v4 as uuidV4 } from 'uuid';
 
 export type ColumnId = string;
-
-
-interface IColumnKey {
-  [key: string]: string | number | undefined
-}
-
 
 export type ColumnType = {
   id?: ColumnId;
@@ -24,7 +18,7 @@ export class Column implements ColumnType {
   order: number;
 
   constructor({
-    id = uuid_v4(),
+    id = uuidV4(),
     title = '',
     order = 0
   }) {

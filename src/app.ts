@@ -1,15 +1,15 @@
 import express, { Request, Response, NextFunction } from 'express';
 
-import { router as userRouter } from './resources/users/user.router';
+
+import * as swaggerUI from 'swagger-ui-express';
+import { join } from 'path';
+import * as YAML from 'yamljs';
 import { router as boardsRouter } from './resources/boards/board.router';
-
-const swaggerUI = require('swagger-ui-express');
-const path = require('path');
-const YAML = require('yamljs');
+import { router as userRouter } from './resources/users/user.router';
 
 
-const app = express();
-const swaggerDocument = YAML.load(path.join(__dirname, '../doc/api.yaml'));
+export const app = express();
+const swaggerDocument = YAML.load(join(__dirname, '../doc/api.yaml'));
 
 app.use(express.json());
 
@@ -30,5 +30,3 @@ app.use('/boards', boardsRouter);
 app.get('*', (req, res) => {
   res.status(404).json({error: 'Not found'});
 });
-
-module.exports = app;

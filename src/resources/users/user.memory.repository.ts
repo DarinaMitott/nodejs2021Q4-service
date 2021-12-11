@@ -31,7 +31,7 @@ interface UpdateArg {
 export const updateUser = async (userId: string, toUpdate: UpdateArg): Promise<User | undefined> => {
   const user = users.find(u => u.id === userId);
   if (!user) {
-    return;
+    return undefined;
   }
 
   Object.assign(user, toUpdate);
@@ -42,7 +42,7 @@ export const deleteUser = async (userId: string): Promise<boolean | undefined> =
   // TODO set tasks userId = null
   const userIdx = users.findIndex(u => u.id === userId);
   if (userIdx < 0) {
-    return;
+    return undefined;
   }
   users.splice(userIdx, 1);
   return true;

@@ -38,7 +38,7 @@ router.route('/(:userId)?').get(async (req: Request, res: Response) => {
       .catch(e => res.status(500).json({error: e.toString()}));
 });
 
-type ValidatorEntry = ((x: string|number|unknown) => boolean);
+type ValidatorEntry = ((_x: string|number|unknown) => boolean);
 interface IUserKey {
   [key: string]: string | number | undefined
 }

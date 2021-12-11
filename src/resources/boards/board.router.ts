@@ -1,9 +1,9 @@
 import { Router, Request, Response } from 'express';
 import { validate } from 'uuid';
 import * as boardService from './board.service';
-import { idValidator, validateColumns } from './column.validator';
+import { validateColumns } from './column.validator';
 import { router as tasksRouter} from '../tasks/task.router';
-import {Column, ColumnArgType, ColumnType} from "./column.model";
+import { ColumnArgType, ColumnType } from "./column.model";
 import {Board} from "./board.model";
 import {UpdateBoardArg} from "./board.memory.repository";
 
@@ -41,12 +41,12 @@ router.route('/').post(async (req: Request, res: Response) => {
   }
 
   validateColumns(columns)
-      .then((validatedColumns: ColumnArgType[] | null) => {
-        if (validatedColumns == null) {
-          res.status(400).json({error: `columns validation failed`});
-        } else {
+      .then((validatedColumns: ColumnArgType[] | null): Promise<Board> | undefined => {
+        if (validatedColumns != null) {
           return boardService.create(title, validatedColumns as ColumnType[])
         }
+        res.status(400).json({error: `columns validation failed`});
+        return undefined;
       })
       .then(newBoard => {
         res.status(201).json(newBoard);

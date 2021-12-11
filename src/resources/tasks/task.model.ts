@@ -1,4 +1,4 @@
-import { v4 as uuid_v4 } from "uuid";
+import { v4 as uuidV4 } from "uuid";
 
 export type TaskType = {
   id: string;
@@ -29,7 +29,7 @@ export class Task implements TaskType {
   columnId: string | null;
 
   constructor({
-    id = uuid_v4(),
+    id = uuidV4(),
     title,
     order,
     description,

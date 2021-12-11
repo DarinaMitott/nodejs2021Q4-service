@@ -1,13 +1,14 @@
+import { validate } from 'uuid';
+
 import {TaskCreateOrUpdateArg} from "./task.model";
 
-const { validate } = require('uuid');
 
 type UserInputType = string | number | null | undefined;
 const VALIDATORS = {
   title: (x: UserInputType): boolean => typeof x === 'string' && x.trim().length > 0,
   order: (x: UserInputType): boolean => typeof x === 'number',
   description: (x: UserInputType): boolean => x === undefined || typeof x === 'string' && x.trim().length > 0,
-  userId: (x: UserInputType): boolean => x === undefined || x === null || validate(x),
+  userId: (x: UserInputType): boolean => x === undefined || x === null || typeof x === 'string' && validate(x),
   boardId: (x: UserInputType): boolean => x === undefined || x === null || typeof x === 'string' && validate(x),
   columnId: (x: UserInputType): boolean => x === undefined || x === null || typeof x === 'string' && validate(x),
 };
