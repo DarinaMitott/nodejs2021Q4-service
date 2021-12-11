@@ -44,7 +44,6 @@ interface IUserKey {
 }
 
 router.route('/:userId').put(async (req: Request, res: Response) => {
-
   const { userId } = req.params;
   if (!idValidator(userId)) {
     res.status(400).json({error: 'UserId is not valid'});
@@ -55,7 +54,7 @@ router.route('/:userId').put(async (req: Request, res: Response) => {
   for (let i = 0; i < Object.keys(userValidators).length; i += 1){
     const name: string = Object.keys(userValidators)[i];
     const validator: ValidatorEntry = Object.values(userValidators)[i];
-    if (req.body[name] === undefined || !validator!(req.body[name])) {
+    if (req.body[name] === undefined || !validator(req.body[name])) {
       res.status(400).json({error: `Invalid field "${name}" specified`});
       return;
     }
@@ -63,8 +62,12 @@ router.route('/:userId').put(async (req: Request, res: Response) => {
   }
 
   usersService.updateUser(userId, toUpdate as UserUpdateArg)
-    .then((updatedUser: User) => {
-      res.status(200).json(updatedUser.toResponse())
+    .then((updatedUser: User | undefined) => {
+      if (updatedUser) {
+        res.status(200).json(updatedUser.toResponse());
+      } else {
+        res.status(404).json({error: 'User not found'});
+      }
     }).catch(e => {
       res.status(500).json({error: e.toString()});
   });
@@ -72,8 +75,6 @@ router.route('/:userId').put(async (req: Request, res: Response) => {
 
 router.route('/').post(async (req: Request, res: Response) => {
   const { name, login, password } = req.body;
-  // TODO: validation
-
   const newUser = await usersService.create(name, login, password);
   res.status(201).json(newUser.toResponse())
 });
@@ -87,8 +88,12 @@ router.route('/:userId').delete(async (req: Request, res: Response) => {
   }
 
   usersService.deleteUser(userId)
-    .then(() => {
-      res.status(204).send();
+    .then((deleted) => {
+      if (!deleted) {
+        res.status(404).json({error: 'User not found'});
+      } else {
+        res.status(204).send();
+      }
     })
     .catch(e => {
       res.status(500).json({error: e.toString()});

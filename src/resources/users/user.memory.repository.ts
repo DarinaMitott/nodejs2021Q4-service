@@ -1,5 +1,5 @@
 import { User } from './user.model';
-import { UserNotFoundError } from '../../common/errors';
+
 
 const users = [
   new User({
@@ -28,22 +28,23 @@ interface UpdateArg {
   password: string
 }
 
-export const updateUser = async (userId: string, toUpdate: UpdateArg): Promise<User> => {
+export const updateUser = async (userId: string, toUpdate: UpdateArg): Promise<User | undefined> => {
   const user = users.find(u => u.id === userId);
   if (!user) {
-    throw new UserNotFoundError();
+    return;
   }
 
   Object.assign(user, toUpdate);
   return user;
 }
 
-export const deleteUser = async (userId: string): Promise<void> => {
+export const deleteUser = async (userId: string): Promise<boolean | undefined> => {
   // TODO set tasks userId = null
   const userIdx = users.findIndex(u => u.id === userId);
   if (userIdx < 0) {
-    throw new UserNotFoundError();
+    return;
   }
   users.splice(userIdx, 1);
+  return true;
 }
 
