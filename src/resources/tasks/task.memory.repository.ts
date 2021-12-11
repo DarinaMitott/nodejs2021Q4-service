@@ -1,4 +1,4 @@
-import Task from './task.model';
+import {Task, TaskCreateOrUpdateArg, TaskType} from './task.model';
 
 let tasks: Task[] = [];
 
@@ -15,13 +15,13 @@ export const getAll = async (boardId: string) => tasks.filter(t => t.boardId ===
 
 export const getById = async (boardId: string, taskId: string) => tasks.find(t => t.boardId === boardId && t.id === taskId)
 
-export const createTask = async (boardId: string, task) => {
-  const newTask = new Task({...task, boardId});
+export const createTask = async (boardId: string, task: TaskCreateOrUpdateArg) => {
+  const newTask = new Task({...task, boardId} as TaskType);
   tasks.push(newTask);
   return newTask;
 }
 
-export const updateTask = async (boardId: string, taskId: string, toUpdate) => {
+export const updateTask = async (boardId: string, taskId: string, toUpdate: TaskCreateOrUpdateArg) => {
   const taskIdx = tasks.findIndex(t => t.boardId === boardId && t.id === taskId);
   if (taskIdx < 0) {
     return null;

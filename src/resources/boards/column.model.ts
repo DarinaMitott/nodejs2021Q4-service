@@ -1,12 +1,20 @@
-import uuid from 'uuid';
+import { v4 as uuid_v4 } from 'uuid';
 
-type ColumnId = string;
+export type ColumnId = string;
 
-type ColumnType = {
+
+interface IColumnKey {
+  [key: string]: string | number | undefined
+}
+
+
+export type ColumnType = {
   id?: ColumnId;
   title: string;
   order: number;
 };
+
+export type ColumnArgType = Partial<ColumnType>;
 
 export class Column implements ColumnType {
   id: ColumnId;
@@ -16,7 +24,7 @@ export class Column implements ColumnType {
   order: number;
 
   constructor({
-    id = uuid.v4(),
+    id = uuid_v4(),
     title = '',
     order = 0
   }) {

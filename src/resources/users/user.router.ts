@@ -1,62 +1,76 @@
-const router = require('express').Router();
+import { Router, Request, Response } from 'express';
 
-// const User = require('./user.model');
-const { UserNotFoundError } = require('../../common/errors');
-const usersService = require('./user.service');
-const userValidator = require('./user.validator');
+import * as usersService from './user.service';
+import { userValidators, idValidator } from './user.validator';
+import {UserUpdateArg} from "./user.service";
+import {User} from "./user.model";
 
+export const router = Router();
 
-router.route('/(:userId)?').get(async (req, res) => {
-  try {
-    const {userId} = req.params;
-    if (userId) {
-      if (!userValidator.id(userId)) {
-        res.status(400).json({error: 'UserID is not valid'});
-        return;
-      }
+router.route('/(:userId)?').get(async (req: Request, res: Response) => {
 
-      const user = await usersService.getById(userId);
-      res.json(user.toResponse());
+  const {userId} = req.params;
+  if (userId) {
+    if (!idValidator(userId)) {
+      res.status(400).json({error: 'UserID is not valid'});
       return;
     }
-    const users = await usersService.getAll();
-    // map user fields to exclude secret fields like "password"
-    res.json(users.map(x => x.toResponse()));
-  } catch (e) {
-    if (e instanceof UserNotFoundError) {
-      res.status(404).json({error: e.toString()});
-    } else {
+
+    usersService.getById(userId)
+      .then(user => {
+        if (user === undefined) {
+          res.status(404).json({error: 'User not found'});
+        } else {
+          res.json(user.toResponse());
+        }
+      })
+      .catch(e => {
+        res.status(500).json({error: e.toString()});
+      });
+
+    return;
+  }
+
+  usersService.getAll()
+      .then(users => {
+        res.json(users.map(x => x.toResponse()));
+      })
+      .catch(e => res.status(500).json({error: e.toString()}));
+});
+
+type ValidatorEntry = ((x: string|number|unknown) => boolean);
+interface IUserKey {
+  [key: string]: string | number | undefined
+}
+
+router.route('/:userId').put(async (req: Request, res: Response) => {
+
+  const { userId } = req.params;
+  if (!idValidator(userId)) {
+    res.status(400).json({error: 'UserId is not valid'});
+    return;
+  }
+
+  const toUpdate = {};
+  for (let i = 0; i < Object.keys(userValidators).length; i += 1){
+    const name: string = Object.keys(userValidators)[i];
+    const validator: ValidatorEntry = Object.values(userValidators)[i];
+    if (req.body[name] === undefined || !validator!(req.body[name])) {
+      res.status(400).json({error: `Invalid field "${name}" specified`});
+      return;
+    }
+    (toUpdate as IUserKey)[name] = req.body[name];
+  }
+
+  usersService.updateUser(userId, toUpdate as UserUpdateArg)
+    .then((updatedUser: User) => {
+      res.status(200).json(updatedUser.toResponse())
+    }).catch(e => {
       res.status(500).json({error: e.toString()});
-    }
-  }
+  });
 });
 
-router.route('/:userId').put(async (req, res) => {
-  try {
-    const { userId } = req.params;
-    if (!userValidator.id(userId)) {
-      res.status(400).json({error: 'UserId is not valid'});
-      return;
-    }
-
-    const toUpdate = {};
-    for (let i = 0; i < Object.entries(userValidator.user).length; i += 1){
-      const [name, validator] = Object.entries(userValidator.user)[i];
-      if (req.body[name] !== undefined && !validator(req.body[name])) {
-        res.status(400).json({error: `Invalid field "${name}" specified`});
-        return;
-      }
-      toUpdate[name] = req.body[name];
-    }
-
-    const updatedUser = await usersService.updateUser(userId, toUpdate);
-    res.status(200).json(updatedUser.toResponse())
-  } catch (e) {
-    res.status(500).json({error: e.toString()});
-  }
-});
-
-router.route('/').post(async (req, res) => {
+router.route('/').post(async (req: Request, res: Response) => {
   const { name, login, password } = req.body;
   // TODO: validation
 
@@ -65,23 +79,19 @@ router.route('/').post(async (req, res) => {
 });
 
 
-router.route('/:userId').delete(async (req, res) => {
-  try {
-    const { userId } = req.params;
-    if (!userValidator.id(userId)) {
-      res.status(400).json({error: 'UserId is not valid'});
-      return;
-    }
-
-    await usersService.deleteUser(userId);
-    res.status(204).send();
-  } catch (e) {
-    if (e instanceof UserNotFoundError) {
-      res.status(404).json({error: 'User not found'});
-      return;
-    }
-    res.status(500).json({error: e.toString()});
+router.route('/:userId').delete(async (req: Request, res: Response) => {
+  const { userId } = req.params;
+  if (!idValidator(userId)) {
+    res.status(400).json({error: 'UserId is not valid'});
+    return;
   }
+
+  usersService.deleteUser(userId)
+    .then(() => {
+      res.status(204).send();
+    })
+    .catch(e => {
+      res.status(500).json({error: e.toString()});
+    });
 })
 
-module.exports = router;

@@ -1,4 +1,4 @@
-import uuid from 'uuid';
+import { v4 as uuid_v4 } from 'uuid';
 import { Column } from './column.model';
 
 
@@ -16,7 +16,7 @@ export class Board implements BoardType {
   columns: Column[];
 
   constructor({
-    id = uuid.v4(),
+    id = uuid_v4(),
     title = '',
     columns = []
   }: BoardType) {

@@ -1,14 +1,9 @@
-import uuid from 'uuid';
+import { validate } from 'uuid';
 
-const idValidator = (x: string) => uuid.validate(x);
+export const idValidator = (x: string): boolean => validate(x);
 
-const userValidators = {
-    name: (x?: string | number) => typeof x === 'string' && x,
-    login: (x?: string | number) => typeof x === 'string' && x,
-    password: (x?: string | number) => typeof x === 'string' && x
+export const userValidators = {
+    name: (x?: string | number | unknown): boolean => typeof x === 'string' && x.trim().length > 0,
+    login: (x?: string | number | unknown): boolean => typeof x === 'string' && x.trim().length > 0,
+    password: (x?: string | number | unknown): boolean => typeof x === 'string' && x.trim().length > 0
 };
-
-module.exports = {
-    id: idValidator,
-    user: userValidators
-}

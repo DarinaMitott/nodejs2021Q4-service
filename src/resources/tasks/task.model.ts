@@ -1,6 +1,6 @@
-import uuid from "uuid";
+import { v4 as uuid_v4 } from "uuid";
 
-type TaskType = {
+export type TaskType = {
   id: string;
   title: string;
   order: number;
@@ -10,7 +10,10 @@ type TaskType = {
   columnId: string | null;
 }
 
-export class Task implements  TaskType {
+export type TaskUserArg = Partial<TaskType>;
+export type TaskCreateOrUpdateArg = Omit<TaskType, 'id'>;
+
+export class Task implements TaskType {
   id: string;
 
   title: string;
@@ -26,14 +29,14 @@ export class Task implements  TaskType {
   columnId: string | null;
 
   constructor({
-    id = uuid.v4(),
+    id = uuid_v4(),
     title,
     order,
     description,
     userId = null, // assignee
     boardId,
     columnId
-  }) {
+  }: TaskType) {
     this.id = id;
     this.title = title;
     this.order = order;

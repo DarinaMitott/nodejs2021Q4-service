@@ -1,28 +1,31 @@
-const uuid = require('uuid');
+import {TaskCreateOrUpdateArg} from "./task.model";
 
+const { validate } = require('uuid');
+
+type UserInputType = string | number | null | undefined;
 const VALIDATORS = {
-  title: x => typeof x === 'string' && x.trim(),
-  order: x => typeof x === 'number',
-  description: x => x === undefined || typeof x === 'string' && x.trim(),
-  userId: x => x === undefined || x === null || uuid.validate(x),
-  boardId: x => x === null || typeof x === 'string' && uuid.validate(x),
-  columnId: x => x === null || typeof x === 'string' && uuid.validate(x),
+  title: (x: UserInputType): boolean => typeof x === 'string' && x.trim().length > 0,
+  order: (x: UserInputType): boolean => typeof x === 'number',
+  description: (x: UserInputType): boolean => x === undefined || typeof x === 'string' && x.trim().length > 0,
+  userId: (x: UserInputType): boolean => x === undefined || x === null || validate(x),
+  boardId: (x: UserInputType): boolean => x === undefined || x === null || typeof x === 'string' && validate(x),
+  columnId: (x: UserInputType): boolean => x === undefined || x === null || typeof x === 'string' && validate(x),
 };
 
-const validate = async (task) => {
+interface ITaskKey {
+  [key: string]: string | number | null | undefined
+}
+
+export const validateTask = async (task: Partial<TaskCreateOrUpdateArg>): Promise<TaskCreateOrUpdateArg | null> => {
   const validated = {};
   for (let i = 0; i < Object.entries(VALIDATORS).length; i += 1) {
     const [name, validator] = Object.entries(VALIDATORS)[i];
-    if (task[name] !== undefined) {
-      if (!validator(task[name])) {
-        return null;
-      }
-      validated[name] = task[name];
+    const value = task[name as keyof TaskCreateOrUpdateArg];
+    if (!validator(value)) {
+      return null;
     }
+    (validated as ITaskKey)[name] = value;
   }
-  return validated;
+  return validated as TaskCreateOrUpdateArg;
 }
 
-module.exports = {
-  validate
-}
