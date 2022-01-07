@@ -60,11 +60,3 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
   next();
 });
 
-// error handlers testing code
-// rejection
-Promise.reject(Error('Oops, rejection!'));
-
-// unhandled exception
-setTimeout(() => {
-  throw Error('Oops, exception!')
-}, 1);
