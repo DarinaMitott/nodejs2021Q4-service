@@ -1,0 +1,39 @@
+version: "3.9"
+services:
+  postgres:
+    build:
+      context: .
+      dockerfile: database/Dockerfile
+    env_file:
+      - .env
+    ports:
+      - "5433:5432"
+    networks:
+      - nodejs2021q4_net
+    restart: unless-stopped
+
+  app:
+    build: .
+    networks:
+      - nodejs2021q4_net
+    ports:
+      - "4000:4000"
+    env_file:
+      - .env
+    depends_on:
+      - postgres
+    restart: unless-stopped
+    volumes:
+      - "./src:/app/src"
+
+volumes:
+  nodejs2021q4_postgres:
+  nodejs2021q4_logs:
+
+
+networks:
+  nodejs2021q4_net:
+    ipam:
+      config:
+        - subnet: 172.16.0.0/24
+          gateway: 172.16.0.1
