@@ -17,11 +17,15 @@ git clone {repository URL}
 npm install
 ```
 
-## Running application
+## Running application in **Docker**
 
+```bash
+docker-compose up --build
 ```
-npm start
-```
+
+It will create two containers: one for postgres, another one for the application itself
+
+Any source file change would restart the application.
 
 After starting the app on port (4000 as default) you can open
 in your browser OpenAPI documentation by typing http://localhost:4000/doc/.
