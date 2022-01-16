@@ -1,4 +1,4 @@
-import { v4 as uuidV4 } from 'uuid';
+import { Entity, Column as OrmColumn, PrimaryGeneratedColumn, BaseEntity, OneToMany, JoinColumn } from "typeorm";
 import { Column } from './column.model';
 
 
@@ -8,21 +8,16 @@ interface BoardType {
   columns: Column[];
 }
 
-export class Board implements BoardType {
-  id: string;
+@Entity()
+export class Board extends BaseEntity implements BoardType {
+  @PrimaryGeneratedColumn('uuid')
+  id!: string;
 
-  title: string;
+  @OrmColumn({default: ''})
+  title!: string;
 
-  columns: Column[];
-
-  constructor({
-    id = uuidV4(),
-    title = '',
-    columns = []
-  }: BoardType) {
-    this.id = id;
-    this.title = title;
-    this.columns = columns;
-  }
+  @OneToMany('Column', 'board')
+  @JoinColumn()
+  columns!: Column[];
 }
 

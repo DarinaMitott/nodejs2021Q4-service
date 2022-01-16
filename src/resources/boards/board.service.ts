@@ -4,11 +4,20 @@ import { ColumnType } from './column.model';
 import { Board } from "./board.model";
 
 export const getAll = () => boardRepo.getAll();
-export const getById = (boardId: string) => boardRepo.getById(boardId);
-export const create = (title: string, columns: ColumnType[]): Promise<Board> => boardRepo.create(title, columns);
-export const updateBoard = (boardId: string, {title, columns}: boardRepo.UpdateBoardArg) => boardRepo.updateBoard(boardId, {title, columns});
+export const getById = (boardId: string) => boardRepo.getBoardById(boardId);
+export const create = async (title: string, columns: ColumnType[]): Promise<Board> => {
+  const cols = await Promise.all(columns.map(boardRepo.createColumn));
+  return boardRepo.create(title, cols);
+}
+
+export const updateBoard = async (boardId: string, title: string, columns: ColumnType[]) => {
+  const cols = await Promise.all(columns.map(boardRepo.updateColumn));
+
+  return boardRepo.updateBoard(boardId, title, cols);
+}
+
 export const deleteBoard = async (boardId: string) => {
-    await taskService.deleteBoardTasks(boardId);
-    return boardRepo.deleteBoard(boardId);
+  await taskService.deleteBoardTasks(boardId);
+  return boardRepo.deleteBoard(boardId);
 }
 

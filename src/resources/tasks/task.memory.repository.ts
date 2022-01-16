@@ -1,46 +1,75 @@
-import {Task, TaskCreateOrUpdateArg, TaskType} from './task.model';
+import { getConnection } from "typeorm";
+import { Task, TaskCreateOrUpdateObj, TaskParamData } from './task.model';
+import { type Board } from '../boards/board.model';
+import { type Column } from '../boards/column.model';
+import { type User } from '../users/user.model';
 
-let tasks: Task[] = [];
 
-export const unassignUser = async (userId: string) => {
-  for (let i = 0; i < tasks.length; i += 1){
-    const task = tasks[i];
-    if (task.userId === userId) {
-      task.userId = null;
-    }
-  }
+
+export const unassignUser = async (userId: string) =>
+  getConnection().getRepository(Task)
+      .createQueryBuilder('task')
+      .update()
+      .set({user: null})
+      .where('userId = :userId', {userId})
+      .execute();
+
+
+export const getAll = async (boardId: string) =>
+  getConnection().getRepository(Task)
+      .createQueryBuilder('task')
+      .where('"task"."boardId" = :boardId', {boardId})
+      .orderBy('"task"."id"')
+      .getMany();
+
+
+export const getById = async (boardId: string, taskId: string): Promise<Task | undefined> =>
+  getConnection().getRepository(Task)
+      .createQueryBuilder('task')
+      .where('"task"."boardId" = :boardId', {boardId})
+      .andWhere('"task"."id" = :taskId', {taskId})
+      .getOne();
+
+
+export const createTask = async (board: Board | null, column: Column | null, user: User | null, task: TaskCreateOrUpdateObj): Promise<TaskParamData> => {
+  const repo = getConnection().getRepository(Task);
+  const newTask = repo.create();
+  repo.merge(newTask, task);
+
+  newTask.user = user;
+  newTask.board = board;
+  newTask.column = column;
+  return repo.save(newTask)
+      .then((t: Task) => Task.toResponse(t));
 }
 
-export const getAll = async (boardId: string) => tasks.filter(t => t.boardId === boardId);
-
-export const getById = async (boardId: string, taskId: string) => tasks.find(t => t.boardId === boardId && t.id === taskId)
-
-export const createTask = async (boardId: string, task: TaskCreateOrUpdateArg) => {
-  const newTask = new Task({...task, boardId} as TaskType);
-  tasks.push(newTask);
-  return newTask;
-}
-
-export const updateTask = async (boardId: string, taskId: string, toUpdate: TaskCreateOrUpdateArg) => {
-  const taskIdx = tasks.findIndex(t => t.boardId === boardId && t.id === taskId);
-  if (taskIdx < 0) {
+export const updateTask = async (boardId: string, taskId: string, toUpdate: Task) => {
+  const result = await getConnection().getRepository(Task)
+      .createQueryBuilder('task')
+      .update()
+      .set(toUpdate)
+      .where('boardId = :boardId AND id = :taskId', {boardId, taskId})
+      .execute();
+  if (!result.affected) {
     return null;
   }
 
-  const task = tasks[taskIdx];
-  Object.assign(task, toUpdate);
-  return task;
+  return toUpdate;
 };
 
 export const deleteTask = async (boardId: string, taskId: string) => {
-  const taskIdx = tasks.findIndex(t => t.boardId === boardId && t.id === taskId);
-  if (taskIdx < 0) {
-    return null;
-  }
-  tasks.splice(taskIdx, 1);
-  return true;
+  const result = await getConnection().getRepository(Task)
+      .createQueryBuilder('task')
+      .delete()
+      .where('id = :taskId AND boardId = :boardId', {taskId, boardId})
+      .execute();
+  return result.affected! > 0;
 };
 
 export const deleteBoardTasks = async (boardId: string) => {
-  tasks = tasks.filter(b => b.boardId !== boardId);
+  await getConnection().getRepository(Task)
+      .createQueryBuilder('task')
+      .delete()
+      .where('boardId = :boardId', {boardId})
+      .execute();
 };

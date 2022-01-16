@@ -5,7 +5,6 @@ import { validateColumns } from './column.validator';
 import { router as tasksRouter} from '../tasks/task.router';
 import { ColumnArgType, ColumnType } from "./column.model";
 import {Board} from "./board.model";
-import {UpdateBoardArg} from "./board.memory.repository";
 
 
 export const router: Router = Router()
@@ -76,7 +75,7 @@ router.route('/:boardId').put(async (req: Request, res: Response) => {
       return;
     }
 
-    const updated = await boardService.updateBoard(boardId, {title, columns: validatedColumns} as UpdateBoardArg);
+    const updated = await boardService.updateBoard(boardId, title, validatedColumns as ColumnType[]);
     if (!updated) {
       res.status(404).json({error: 'Board not found'});
       return;

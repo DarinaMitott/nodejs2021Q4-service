@@ -1,6 +1,8 @@
+import { getConnection } from "typeorm";
 import { User } from './user.model';
+import { unassignUser as taskUnassignUser } from '../tasks/task.memory.repository';
 
-
+/*
 const users = [
   new User({
     id: 'dbf6daeb-543e-4d40-b95b-da5a04a7685d',
@@ -9,18 +11,34 @@ const users = [
     password: "123"
   }),
 ];
+*/
 
-export const getAll = async (): Promise<User[]> => users;
+export const getAll = async (): Promise<User[]> =>
+  getConnection().getRepository(User)
+      .createQueryBuilder('user')
+      .orderBy('user.id')
+      .getMany();
 
-export const getById = async (userId: string): Promise<User | undefined> => users.find(u => u.id === userId)
+
+export const getById = async (userId: string): Promise<User | undefined> =>
+  getConnection().getRepository(User)
+      .findOne(userId);
 
 export const create = async (name: string, login: string, password: string): Promise<User> => {
-  const newUser = new User({name, login, password});
-  users.push(newUser);
-  return newUser
+  const newUser = getConnection().getRepository(User).create();
+  newUser.name = name;
+  newUser.login = login;
+  newUser.password = password;
+
+  return getConnection().getRepository(User).save(newUser);
 }
 
-export const loginUser = async (login: string, password: string): Promise<User | undefined> => users.find((u) => u.login === login && u.password === password)
+export const loginUser = async (login: string, password: string): Promise<User | undefined> =>
+  getConnection().getRepository(User)
+      .createQueryBuilder('user')
+      .where('user.login = :login AND user.password = :password', {login, password})
+      .getOne();
+
 
 interface UpdateArg {
   name: string,
@@ -29,22 +47,28 @@ interface UpdateArg {
 }
 
 export const updateUser = async (userId: string, toUpdate: UpdateArg): Promise<User | undefined> => {
-  const user = users.find(u => u.id === userId);
+  const user = await getConnection().getRepository(User)
+      .findOne(userId);
   if (!user) {
     return undefined;
   }
 
-  Object.assign(user, toUpdate);
-  return user;
+  user.name = toUpdate.name;
+  // user.login = toUpdate // Login should not be updated
+  user.password = toUpdate.password;
+
+  return getConnection().getRepository(User).save(user);
 }
 
 export const deleteUser = async (userId: string): Promise<boolean | undefined> => {
-  // TODO set tasks userId = null
-  const userIdx = users.findIndex(u => u.id === userId);
-  if (userIdx < 0) {
-    return undefined;
-  }
-  users.splice(userIdx, 1);
-  return true;
+  await taskUnassignUser(userId);
+
+  const result = await getConnection().getRepository(User)
+      .createQueryBuilder('user')
+      .delete()
+      .where('id = :userId', {userId})
+      .execute();
+
+  return result.affected! > 0;
 }
 

@@ -1,5 +1,4 @@
 import * as usersRepo from './user.memory.repository';
-import * as taskService from '../tasks/task.service';
 
 export const getAll = () => usersRepo.getAll();
 export const getById = (userId: string) => usersRepo.getById(userId);
@@ -14,7 +13,4 @@ export type UserUpdateArg = {
 
 
 export const updateUser = (userId: string, toUpdate: UserUpdateArg) => usersRepo.updateUser(userId, toUpdate);
-export const deleteUser = async (userId: string) => {
-    await taskService.unassignUser(userId);
-    return usersRepo.deleteUser(userId);
-}
+export const deleteUser = async (userId: string) => usersRepo.deleteUser(userId)

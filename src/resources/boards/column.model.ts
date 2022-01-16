@@ -1,30 +1,28 @@
-import { v4 as uuidV4 } from 'uuid';
-
-export type ColumnId = string;
+import { Entity, Column as OrmColumn, PrimaryGeneratedColumn, BaseEntity, ManyToOne, JoinColumn } from "typeorm";
+import { type Board } from './board.model';
 
 export type ColumnType = {
-  id?: ColumnId;
+  id?: string;
   title: string;
   order: number;
+  boardId?: string;
 };
 
 export type ColumnArgType = Partial<ColumnType>;
 
-export class Column implements ColumnType {
-  id: ColumnId;
+@Entity()
+export class Column extends BaseEntity implements ColumnType {
+  @PrimaryGeneratedColumn('uuid')
+  id!: string;
 
-  title: string;
+  @OrmColumn()
+  title!: string;
 
-  order: number;
+  @OrmColumn({default: '0'})
+  order!: number;
 
-  constructor({
-    id = uuidV4(),
-    title = '',
-    order = 0
-  }) {
-    this.id = id;
-    this.title = title;
-    this.order = order;
-  }
+  @ManyToOne('Board', 'columns', {nullable: true, onDelete: 'CASCADE'})
+  @JoinColumn()
+  board?: Board;
 }
 

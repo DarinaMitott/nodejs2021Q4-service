@@ -2,11 +2,14 @@ import express, { Request, Response, NextFunction } from 'express';
 import { join } from 'path';
 import * as swaggerUI from 'swagger-ui-express';
 import * as YAML from 'yamljs';
+import 'reflect-metadata';
+import { createConnection } from 'typeorm';
 
 import { setupLogger, logger } from "./logger";
 import { PageNotFoundError } from "./page_not_found_error";
 import { router as boardsRouter } from './resources/boards/board.router';
 import { router as userRouter } from './resources/users/user.router';
+import config from './ormconfig';
 
 export const app = express();
 const swaggerDocument = YAML.load(join(__dirname, '../doc/api.yaml'));
@@ -59,4 +62,9 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
   res.status(500).json({error: 'Internal error'});
   next();
 });
+
+
+export const initDb = async () => {
+  await createConnection(config);
+}
 
