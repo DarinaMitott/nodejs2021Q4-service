@@ -23,6 +23,19 @@ npm install
 docker-compose up --build
 ```
 
+Init the database
+```bash
+# this command connects to the running application container and applies migrations 
+docker exec -it $(docker ps | grep nodejs2021q4-service_app | awk '{print $1}') npm run migration:run
+```
+It should tell `Migration Initial1642349269418 has been executed successfully.` in the console output
+
+Then Run tests:
+```bash
+# execute this this command to run tests
+docker exec -it $(docker ps | grep nodejs2021q4-service_app | awk '{print $1}') npm run test
+```
+
 It will create two containers: one for postgres, another one for the application itself
 
 Any source file change would restart the application.
