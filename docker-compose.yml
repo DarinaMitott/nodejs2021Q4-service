@@ -7,17 +7,19 @@ services:
     env_file:
       - .env
     ports:
-      - "5433:5432"
+      - "${POSTGRES_PORT}:${POSTGRES_PORT}"
     networks:
       - nodejs2021q4_net
     restart: unless-stopped
+    volumes:
+      - nodejs2021q4_postgres:/var/lib/postgresql/data
 
   app:
     build: .
     networks:
       - nodejs2021q4_net
     ports:
-      - "4000:4000"
+      - "${PORT}:${PORT}"
     env_file:
       - .env
     depends_on:
@@ -25,6 +27,7 @@ services:
     restart: unless-stopped
     volumes:
       - "./src:/app/src"
+      - nodejs2021q4_logs:/app/logs
 
 volumes:
   nodejs2021q4_postgres:
