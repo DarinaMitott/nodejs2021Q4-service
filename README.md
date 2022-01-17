@@ -8,7 +8,12 @@
 ## Downloading
 
 ```
-git clone {repository URL}
+git clone https://github.com/DarinaMitott/nodejs2021Q4-service
+```
+
+Check out the `origin/typeorm` branch.
+```bash
+git checkout -b typeorm origin/typeorm
 ```
 
 ## Installing NPM modules
@@ -23,18 +28,14 @@ npm install
 docker-compose up --build
 ```
 
-Init the database
-```bash
-# this command connects to the running application container and applies migrations 
-docker exec -it $(docker ps | grep nodejs2021q4-service_app | awk '{print $1}') npm run migration:run
-```
-It should tell `Migration Initial1642349269418 has been executed successfully.` in the console output
 
-Then Run tests:
+After the two containers are up, you can **Run tests**:
 ```bash
 # execute this this command to run tests
 docker exec -it $(docker ps | grep nodejs2021q4-service_app | awk '{print $1}') npm run test
 ```
+
+This command may fail if you checked out the repository to other than `nodejs2021q4-service` folder
 
 It will create two containers: one for postgres, another one for the application itself
 

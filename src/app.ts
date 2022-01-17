@@ -65,6 +65,7 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
 
 
 export const initDb = async () => {
-  await createConnection(config);
+  const conn = await createConnection(config);
+  await conn.runMigrations();
 }
 
