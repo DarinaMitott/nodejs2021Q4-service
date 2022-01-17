@@ -8,7 +8,12 @@
 ## Downloading
 
 ```
-git clone {repository URL}
+git clone https://github.com/DarinaMitott/nodejs2021Q4-service
+```
+
+Check out the `origin/typeorm` branch.
+```bash
+git checkout -b typeorm origin/typeorm
 ```
 
 ## Installing NPM modules
@@ -17,11 +22,24 @@ git clone {repository URL}
 npm install
 ```
 
-## Running application
+## Running application in **Docker**
 
+```bash
+docker-compose up --build
 ```
-npm start
+
+
+After the two containers are up, you can **Run tests**:
+```bash
+# execute this this command to run tests
+docker exec -it $(docker ps | grep nodejs2021q4-service_app | awk '{print $1}') npm run test
 ```
+
+This command may fail if you checked out the repository to other than `nodejs2021q4-service` folder
+
+It will create two containers: one for postgres, another one for the application itself
+
+Any source file change would restart the application.
 
 After starting the app on port (4000 as default) you can open
 in your browser OpenAPI documentation by typing http://localhost:4000/doc/.
