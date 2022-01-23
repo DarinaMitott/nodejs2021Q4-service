@@ -32,7 +32,7 @@ docker-compose up --build
 After the two containers are up, you can **Run tests**:
 ```bash
 # execute this this command to run tests
-docker exec -it $(docker ps | grep nodejs2021q4-service_app | awk '{print $1}') npm run test
+docker exec -it $(docker ps | grep nodejs2021q4-service_app | awk '{print $1}') npm run test:auth
 ```
 
 This command may fail if you checked out the repository to other than `nodejs2021q4-service` folder

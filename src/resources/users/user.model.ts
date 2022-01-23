@@ -13,34 +13,21 @@ type UserType = {
 @Entity()
 export class User extends BaseEntity implements UserType {
   @PrimaryGeneratedColumn('uuid')
-  id: string;
+  id!: string;
 
   @OrmColumn()
-  name: string;
+  name!: string;
 
   @Index()
   @OrmColumn()
-  login: string;
+  login!: string;
 
   @Index()
   @OrmColumn({select: false})
-  password: string;
+  password!: string;
 
   @OneToMany('Task', 'task.user')
   tasks!: Task[];
-
-  constructor({
-    id = uuidV4(),
-    name = 'USER',
-    login = 'user',
-    password = 'P@55w0rd'
-  } = {}) {
-    super();
-    this.id = id;
-    this.name = name;
-    this.login = login;
-    this.password = password;
-  }
 
   toResponse() {
     return {

@@ -1,6 +1,8 @@
 import { getConnection } from "typeorm";
+import { hash, compare } from 'bcrypt';
 import { User } from './user.model';
 import { unassignUser as taskUnassignUser } from '../tasks/task.memory.repository';
+import { HASH_ROUNDS } from "../../common/config";
 
 /*
 const users = [
@@ -25,20 +27,29 @@ export const getById = async (userId: string): Promise<User | undefined> =>
       .findOne(userId);
 
 export const create = async (name: string, login: string, password: string): Promise<User> => {
-  const newUser = getConnection().getRepository(User).create();
-  newUser.name = name;
-  newUser.login = login;
-  newUser.password = password;
+  return hash(password, HASH_ROUNDS).then(async (hashVal: string) => {
+    const newUser = getConnection().getRepository(User).create();
+    newUser.name = name;
+    newUser.login = login;
+    newUser.password = hashVal;
 
-  return getConnection().getRepository(User).save(newUser);
+    return getConnection().getRepository(User).save(newUser);
+  });
 }
 
-export const loginUser = async (login: string, password: string): Promise<User | undefined> =>
-  getConnection().getRepository(User)
+export const loginUser = async (login: string, password: string): Promise<User | undefined> => {
+  const user = await getConnection().getRepository(User)
       .createQueryBuilder('user')
-      .where('user.login = :login AND user.password = :password', {login, password})
+      .where('"user"."login" = :login', {login})
+      .addSelect(['user.password'])
       .getOne();
 
+  if (!user) {
+    return;
+  }
+
+  return compare(password, user.password).then(result => result ? user : undefined);
+}
 
 interface UpdateArg {
   name: string,
