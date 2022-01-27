@@ -8,7 +8,7 @@ export const loginUser = async (login: string, password: string) => usersRepo.lo
 export type UserUpdateArg = {
     name: string,
     login: string,
-    password: string
+    password?: string | null | undefined
 }
 
 

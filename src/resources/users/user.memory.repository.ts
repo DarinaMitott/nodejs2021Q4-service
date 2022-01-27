@@ -26,16 +26,15 @@ export const getById = async (userId: string): Promise<User | undefined> =>
   getConnection().getRepository(User)
       .findOne(userId);
 
-export const create = async (name: string, login: string, password: string): Promise<User> => {
-  return hash(password, HASH_ROUNDS).then(async (hashVal: string) => {
+export const create = async (name: string, login: string, password: string): Promise<User> =>
+    hash(password, HASH_ROUNDS).then(async (hashVal: string) => {
     const newUser = getConnection().getRepository(User).create();
     newUser.name = name;
     newUser.login = login;
     newUser.password = hashVal;
 
     return getConnection().getRepository(User).save(newUser);
-  });
-}
+  })
 
 export const loginUser = async (login: string, password: string): Promise<User | undefined> => {
   const user = await getConnection().getRepository(User)
@@ -45,16 +44,17 @@ export const loginUser = async (login: string, password: string): Promise<User |
       .getOne();
 
   if (!user) {
-    return;
+    return undefined;
   }
 
-  return compare(password, user.password).then(result => result ? user : undefined);
+  const result = await compare(password, user.password);
+  return result ? user : undefined;
 }
 
 interface UpdateArg {
   name: string,
   login: string,
-  password: string
+  password?: string | null | undefined
 }
 
 export const updateUser = async (userId: string, toUpdate: UpdateArg): Promise<User | undefined> => {
@@ -65,8 +65,9 @@ export const updateUser = async (userId: string, toUpdate: UpdateArg): Promise<U
   }
 
   user.name = toUpdate.name;
-  // user.login = toUpdate // Login should not be updated
-  user.password = toUpdate.password;
+  if (toUpdate.password) {
+      user.password = await hash(toUpdate.password, HASH_ROUNDS);
+  }
 
   return getConnection().getRepository(User).save(user);
 }

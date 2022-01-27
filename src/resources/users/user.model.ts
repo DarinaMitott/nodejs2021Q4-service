@@ -1,4 +1,3 @@
-import { v4 as uuidV4 } from 'uuid';
 import { Entity, Column as OrmColumn, PrimaryGeneratedColumn, Index, BaseEntity, OneToMany } from "typeorm";
 import { type Task } from '../tasks/task.model';
 
