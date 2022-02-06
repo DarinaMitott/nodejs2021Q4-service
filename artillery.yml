@@ -1,0 +1,38 @@
+config:
+  target: "http://localhost:4000"
+  phases:
+    - duration: 60
+      arrivalRate: 10
+
+scenarios:
+  - name: "Create boards"
+    flow:
+      - post:
+          url: "/login"
+          json:
+            login: "admin"
+            password: "admin"
+          capture:
+            - json: "$.token"
+              as: "token"
+      - post:
+          url: "/boards"
+          headers:
+            Authorization: "Bearer {{token}}"
+          json:
+            title: "Autotest board"
+            columns:
+              - title: "Backlog"
+                order: 1
+              - title: "Sprint"
+                order: 2
+          capture:
+            - json: "$.id"
+              as: "boardId"
+      - get:
+          url: "/boards/{{boardId}}"
+          headers:
+            Authorization: "Bearer {{token}}"
+          capture:
+            - json: "$.title"
+              as: "boardTitle"

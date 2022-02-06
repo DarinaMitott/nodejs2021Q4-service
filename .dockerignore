@@ -1,0 +1,17 @@
+/node_modules
+/.git
+/.idea
+/.env
+/.github
+/.vscode
+/database
+/dist
+/logs
+/.dockerignore
+/.gitignore
+/README.md
+/Dockerfile
+/src
+/docker-compose.yml
+/uploads
+/artillery*
