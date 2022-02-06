@@ -14,8 +14,8 @@ services:
     volumes:
       - nodejs2021q4_postgres:/var/lib/postgresql/data
 
-  app:
-    container_name: nodejs-app
+  nodejs-app-nest:
+    container_name: nodejs-app-nest
     build: .
     networks:
       - nodejs2021q4_net
@@ -28,6 +28,7 @@ services:
     restart: unless-stopped
     volumes:
       - "./src:/app/src"
+      - "./uploads:/uploads"
       - nodejs2021q4_logs:/app/logs
 
 volumes:
@@ -37,7 +38,4 @@ volumes:
 
 networks:
   nodejs2021q4_net:
-    ipam:
-      config:
-        - subnet: 172.16.0.0/24
-          gateway: 172.16.0.1
+

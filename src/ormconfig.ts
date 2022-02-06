@@ -1,5 +1,5 @@
 import { PostgresConnectionOptions } from "typeorm/driver/postgres/PostgresConnectionOptions";
-import {POSTGRES_DB, POSTGRES_HOST, POSTGRES_PASSWORD, POSTGRES_PORT, POSTGRES_USER} from "./common/config";
+import { POSTGRES_DB, POSTGRES_HOST, POSTGRES_PASSWORD, POSTGRES_PORT, POSTGRES_USER } from "./common/config";
 
 const config: PostgresConnectionOptions = {
     "type": "postgres",
@@ -11,7 +11,7 @@ const config: PostgresConnectionOptions = {
     "synchronize": false,
     "logging": true,
     "entities": [
-        "src/resources/**/*.model.ts"
+        "src/entities/*.ts"
     ],
     "migrations": [
         "src/migration/*.ts"

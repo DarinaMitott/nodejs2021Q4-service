@@ -1,10 +1,9 @@
-import { Express, Request, Response } from "express";
-import { createWriteStream } from "fs";
-import morgan from "morgan";
 import { join } from "path";
-import { createLogger, format, transports } from 'winston';
-
-import { LOG_LEVEL, EXIT_ON_UNHANDLED_EXCEPTION } from './common/config';
+import morgan from "morgan";
+import { format, transports } from "winston";
+import { createWriteStream } from "fs";
+import { StreamableFile } from "@nestjs/common";
+import { EXIT_ON_UNHANDLED_EXCEPTION, LOG_LEVEL } from "./common/config";
 
 export const logFormat = ':method :url :status :response-time ms - Res len: :res[content-length] - Req len: :req[content-length]\n' +
     '\tRequest body: :req_body\n' +
@@ -12,10 +11,27 @@ export const logFormat = ':method :url :status :response-time ms - Res len: :res
     '\tError: :error';
 
 
-morgan.token('req_body', (req: Request): string | undefined => req.body ? JSON.stringify(req.body) : undefined)
-morgan.token('res_body', (req: Request, res: Response): string | undefined => res.locals.body ? JSON.stringify(res.locals.body) : undefined);
-morgan.token('error', (req: Request, res: Response): string | undefined => res.locals.error ? res.locals.error : undefined);
+morgan.token('req_body', (req): string | undefined => req.body ? JSON.stringify(req.body) : undefined)
+morgan.token('res_body', (req): string | undefined => {
+    if (req.res_body) {
+        try {
+            return JSON.stringify(req.res_body)
+        } catch (e) {
+            return '[failed to serialize]';
+        }
+    }
+    return undefined; // to suppress linter
+});
+morgan.token('error', (req, res): string | undefined => res.locals?.error ? res.locals?.error : undefined);
 
+
+const levelReprToValue = {
+    error: 0,
+    warn: 1,
+    info: 2,
+    debug: 3,
+    silly: 4
+};
 
 const getLevel = (defaultLevel='all'): string => {
     interface ILevelMap {
@@ -33,7 +49,14 @@ const getLevel = (defaultLevel='all'): string => {
     return (levelsMap as ILevelMap)[level] || defaultLevel;
 }
 
-export const logger = createLogger({
+const minLevel = (level): string => {
+    const confLevel = getLevel();
+    const confVal = levelReprToValue[confLevel];
+    const levelVal = levelReprToValue[level];
+    return confVal > levelVal ? level : confLevel;
+}
+
+export const loggingConfig = {
     level: getLevel(),
     format: format.combine(
         format.colorize(),
@@ -43,7 +66,7 @@ export const logger = createLogger({
         new transports.Console(),
         new transports.File({
             filename: join(__dirname, '..', 'logs', 'error.log'),
-            level: 'error',
+            level: minLevel('error'),
             format: format.combine(
                 format.uncolorize(),
                 format.json()
@@ -51,17 +74,18 @@ export const logger = createLogger({
         }),
         new transports.File({
             filename: join(__dirname, '..', 'logs', 'info.log'),
-            level: 'info',
+            level: minLevel('info'),
             format: format.combine(
                 format.uncolorize(),
                 format.json()
             )
         }),
     ]
-});
+}
 
+export const setupLogger = async (app, logger) => {
+    app.useLogger(logger);
 
-export const setupLogger = (app: Express) => {
     // file logger
     app.use(morgan(
         logFormat,
@@ -73,7 +97,7 @@ export const setupLogger = (app: Express) => {
 
 
     process.on('uncaughtException', (error) => {
-        logger.error(`Captured unhandled exception ${error.toString()}`);
+        logger.error(`Captured unhandled exception ${error.toString()}: ${error.stack}`);
         if (EXIT_ON_UNHANDLED_EXCEPTION) {
             process.exit(1);
         }
