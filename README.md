@@ -11,9 +11,9 @@
 git clone https://github.com/DarinaMitott/nodejs2021Q4-service
 ```
 
-Check out the `origin/typeorm` branch.
+Check out the `origin/nestjs` branch.
 ```bash
-git checkout -b typeorm origin/typeorm
+git checkout -b nestjs origin/nestjs
 ```
 
 ## Installing NPM modules
@@ -72,6 +72,30 @@ To run only specific test suite with authorization (users, boards or tasks)
 ```
 npm run test:auth <suite name>
 ```
+
+## Comparison NestJs backends: Express vs Fastify results
+
+
+| backend | Response Time                              | vusers sess len                                      | 
+|---------|--------------------------------------------|------------------------------------------------------|
+| Express | min 4, max 180, mid 21.1, p95 144, p99 153 | min 73.8, max 280.5, mid 135.7, p95 194.4, p99 242.3 |
+| Fastify | min 3, max 175, mid 19.9, p95 147, p99 153 | min 68.7, max 297,   mid 135.7, p95 186.8, p99 228.2 |        
+
+
+For load testing used [artillery](https://artillery.io/) library.
+
+To switch between backends there is `USE_FASTIFY` env variable in the `.env` file, set it to `true` to
+switch to **Fastify**, otherwise **Express** will be used.
+
+You can run the testing via the following command:
+```bash
+artillery run artillery.yml
+```
+
+Load test results for dev environment are stored at:
+- [`./artillery-express.json`](./artillery-express.json)
+- [`./artillery-fastify.json`](./artillery-fastify.json)
+
 
 ## Development
 

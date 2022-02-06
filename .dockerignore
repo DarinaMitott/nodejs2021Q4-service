@@ -13,3 +13,5 @@
 /Dockerfile
 /src
 /docker-compose.yml
+/uploads
+/artillery*
